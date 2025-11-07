@@ -8,7 +8,7 @@ export default function Home() {
       <h1>Reseptisoppi</h1>
       <h2>Lisää lempireseptisi ja jaa ne ystäviesi kanssa!</h2>
 
-    {/*Vaihtoehdot: kirjaudu sisään tai luo tunnus*/}
+    {/*Options: log in or register*/}
       <div>
         <button onClick={() => navigate("/login")}>
           Kirjaudu sisään
