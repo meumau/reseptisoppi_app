@@ -17,16 +17,24 @@ export default function Recipes() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+
   useEffect(() => {
     async function loadMyRecipes() {
       setLoading(true);
       setError("");
 
-      const { data: userData, error } = await supabase.auth.getUser();
-      console.log("userData:", userData);
+      //Getting user data from supabase
+      const { data: userData } = await supabase.auth.getUser();
+
+      if (!userData.user) {
+        //If user hasn't logged in, redirecting to login page
+        navigate("/login");
+        return;
+      }
 
       const userId = userData.user.id;
 
+      //Getting users recipes from supabase
       const { data, error: fetchError } = await supabase
       .from("recipes")
       .select("*")
@@ -43,7 +51,7 @@ export default function Recipes() {
     }
 
     loadMyRecipes();
-  }, []);
+  }, [navigate]);
 
   return (
     <div style={{ padding: "20px" }}>

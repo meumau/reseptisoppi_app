@@ -15,19 +15,19 @@ export default function Login() {
 
     setError("");
 
-    {/*Signing in with Supabase Auth*/}
+    //Signing in with Supabase Auth
     const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    {/*If the user writes wrong email or password, this error shows up*/}
+    //If the user writes wrong email or password, this error shows up
     if (signInError) {
       setError("Virheelliset kirjautumistiedot");
       return;
     }
 
-    {/*When signing in is complete, app navigates to recipes page*/}
+   //When signing in is complete, app navigates to recipes page
     navigate("/recipes");
     
   }

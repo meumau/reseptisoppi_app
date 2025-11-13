@@ -16,7 +16,7 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
-    {/*If password isn't same as confirm password & if password isn't 6 or more characters, error shows up*/}
+    //If password isn't same as confirm password & if password isn't 6 or more characters, error shows up
 
     if (password !== confirmPassword) {
       setError("Salasanat eivät täsmää.");
@@ -28,19 +28,19 @@ export default function Register() {
       return;
     }
 
-    {/*Signing in with Supabase Auth*/}
+    //Signing in with Supabase Auth
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
     });
 
-    {/*If sign up doesn't succeed, error shows up*/}
+    //If sign up doesn't succeed, error shows up
     if (signUpError) {
       setError("Tunnuksen luominen ei onnistunut");
       return;
     }
 
-    {/*When the user has signed up succesfully, app navigates to recipes page*/}
+    //When the user has signed up succesfully, app navigates to recipes page
     navigate("/recipes");
 
   }
