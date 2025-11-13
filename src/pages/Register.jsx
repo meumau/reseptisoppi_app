@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
@@ -10,6 +10,20 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+
+  //If the user has already logged in, redirecting to recipes-page
+  useEffect(() => {
+    async function checkUser() {
+        const { data } = await supabase.auth.getUser();
+    
+        if (data?.user) {
+            navigate("/recipes");
+            return;
+        } 
+    }
+  
+          checkUser();
+  }, [navigate]);
 
   async function signUpNewUser(e) {
 

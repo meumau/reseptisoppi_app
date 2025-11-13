@@ -1,7 +1,23 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { supabase } from "../supabaseClient";
 
 export default function Home() {
   const navigate = useNavigate();
+
+  //If the user has already logged in, redirecting to recipes-page
+  useEffect(() => {
+          async function checkUser() {
+            const { data } = await supabase.auth.getUser();
+    
+            if (data?.user) {
+                navigate("/recipes");
+                return;
+            } 
+          }
+  
+          checkUser();
+  }, [navigate]);
 
   return (
     <div>
