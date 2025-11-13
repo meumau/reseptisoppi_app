@@ -64,7 +64,7 @@ export default function Recipes() {
       <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
         {recipes.map((r) => (
           <Card key={r.id} sx={{ width: 300 }}>
-            <CardActionArea>
+            <CardActionArea onClick={() => navigate("/showrecipe/" + r.id)}>
               <CardMedia
                 component="img"
                 height="140"
