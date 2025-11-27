@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function AddRecipe() {
 
@@ -10,6 +12,7 @@ export default function AddRecipe() {
     const [ingredients, setIngredients] = useState([""]);
     const [instructions, setInstructions] = useState("");
     const [imageFile, setImageFile] = useState(null);
+
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
@@ -17,22 +20,22 @@ export default function AddRecipe() {
     //Checking if the user is logged in
     useEffect(() => {
         async function checkUser() {
-        const { data } = await supabase.auth.getUser();
+            const { data } = await supabase.auth.getUser();
 
-        if (!data?.user) {
-            navigate("/login");
-        } else {
-            setUser(data.user); //Saving user data
+            if (!data?.user) {
+                navigate("/login");
+                return;
+            }
+
+            setUser(data.user);
             setLoading(false);
-        }
         }
 
         checkUser();
     }, [navigate]);
 
-    if (loading) {
-        return <p>Ladataan...</p>;
-    }
+    if (loading) return <p>Ladataan...</p>;
+   
 
     //Handling the submitted form
     async function handleSubmit(e) {
@@ -90,11 +93,16 @@ export default function AddRecipe() {
             navigate("/recipes");
     }
 
-    //Setting ingredient value
+    //Setting ingredient value for the ingredient user is editing
     const handleIngredientChange = (index, value) => {
         setIngredients((prev) =>
         prev.map((ing, i) => (i === index ? value : ing))
         );
+    };
+
+    //Deleting ingredient
+    const handleIngredientDelete = (index) => {
+        setIngredients((prev) => prev.filter((_, i) => i !== index));
     };
 
 
@@ -112,14 +120,20 @@ export default function AddRecipe() {
         <input type="text" placeholder="Reseptin nimi" required value={recipeName} onChange={(e) => setRecipeName(e.target.value)} />
 
         {ingredients.map((ingredient, index) => (
-          <input
-            key={index}
-            type="text"
-            placeholder={`Ainesosa ${index + 1}`}
-            value={ingredient}
-            onChange={(e) => handleIngredientChange(index, e.target.value)}
-          />
+            <div key={index} style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <input
+                    type="text"
+                    placeholder={`Ainesosa ${index + 1}`}
+                    value={ingredient}
+                    onChange={(e) => handleIngredientChange(index, e.target.value)}
+                />
+
+                <IconButton color="secondary" aria-label="delete" onClick={() => handleIngredientDelete(index)}>
+                    <DeleteIcon />
+                </IconButton>
+            </div>
         ))}
+
 
         <button type="button" onClick={() => setIngredients([...ingredients, ""])}>
             Lisää ainesosa

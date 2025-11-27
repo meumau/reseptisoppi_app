@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Recipes from "./pages/Recipes";
 import AddRecipe from "./pages/AddRecipe";
 import ShowRecipe from "./pages/ShowRecipe";
+import EditRecipe from "./pages/EditRecipe";
 
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/recipes" element={<Recipes />} />
         <Route path="/addrecipe" element={<AddRecipe />} />
         <Route path="/showrecipe/:id" element={<ShowRecipe />} />
+        <Route path="/editrecipe/:id" element={<EditRecipe />} />
       </Routes>
     </Router>
   )

@@ -49,7 +49,7 @@ export default function Login() {
 
   return (
     <div>
-      <button onClick={() => navigate("/")}>Takaisin</button>
+      <button onClick={() => navigate("/")}>Etusivulle</button>
       <h1>Kirjaudu sisään</h1>
       <form onSubmit={signInWithEmail} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         <input type="email" placeholder="Sähköposti" required value={email} onChange={(e) => setEmail(e.target.value)}/>
@@ -57,8 +57,10 @@ export default function Login() {
 
         {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <button>Kirjaudu</button>
+        <button type="submit">Kirjaudu</button>
       </form>
+      <p>Eiko sinulla ole tunnuksia?</p>
+      <button onClick={() => navigate("/register")}>Luo tunnus</button>
     </div>
   );
 }

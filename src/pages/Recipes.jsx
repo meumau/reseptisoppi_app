@@ -38,6 +38,7 @@ export default function Recipes() {
       const { data, error: fetchError } = await supabase
       .from("recipes")
       .select("*")
+      .order("created_at", { ascending: false })
       .eq("owner", userId);
 
       if (fetchError) {
@@ -53,8 +54,19 @@ export default function Recipes() {
     loadMyRecipes();
   }, [navigate]);
 
+  async function handleLogout() {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+        console.error("Uloskirjautuminen epäonnistui:", error.message);
+    } else {
+        navigate("/");
+    }
+  }
+
   return (
     <div style={{ padding: "20px" }}>
+
+      <button onClick={handleLogout}>Kirjaudu ulos</button>
 
       <h1>Reseptisi</h1>
 

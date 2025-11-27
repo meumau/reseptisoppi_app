@@ -62,7 +62,7 @@ export default function Register() {
 
   return (
     <div>
-      <button onClick={() => navigate("/")}>Takaisin</button>
+      <button onClick={() => navigate("/")}>Etusivulle</button>
       <h1>Luo tunnus</h1>
       <form onSubmit={signUpNewUser} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         <input type="email" placeholder="Sähköposti" required value={email} onChange={(e) => setEmail(e.target.value)}/>
@@ -72,7 +72,7 @@ export default function Register() {
         {error && <p style={{ color: "red" }}>{error}</p>}
 
 
-        <button>Rekisteröidy</button>
+        <button type="submit">Rekisteröidy</button>
       </form>
     </div>
   );
