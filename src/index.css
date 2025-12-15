@@ -403,6 +403,18 @@ button:focus-visible {
     padding: 100px 50px;
   }
 
+  .login {
+    max-width: 85%; 
+  }
+
+  .login-container {
+    padding: 30px 20px;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+  }
+
   .recipes-grid {
     grid-template-columns: repeat(auto-fill, minmax(90%, 1fr));
     gap: 20px;
@@ -435,7 +447,8 @@ button:focus-visible {
   }
 
   .show-recipe-content {
-      padding: 19px 0 20px 20px;
+      padding: 20px;
+      max-height: 2000px;
   }
 
   h1 {
