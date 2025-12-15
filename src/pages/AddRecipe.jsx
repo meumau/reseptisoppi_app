@@ -2,11 +2,12 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faArrowLeft, faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
+import { faTrash, faArrowLeft, faFloppyDisk, faUser } from '@fortawesome/free-solid-svg-icons'
 
 export default function AddRecipe() {
 
     const navigate = useNavigate();
+    const [menuOpen, setMenuOpen] = useState(false);
 
     const [recipeName, setRecipeName] = useState("");
     const [ingredients, setIngredients] = useState([""]);
@@ -14,12 +15,13 @@ export default function AddRecipe() {
 
     const PLACEHOLDER_URL = "https://grqvzebxmjnyaracmbtl.supabase.co/storage/v1/object/sign/Recipeimages/default-placeholder.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YTRiMzk2ZS03ZDYyLTQ0NzMtOTZiMi1lMmU2ZTVlYjNiYzYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJSZWNpcGVpbWFnZXMvZGVmYXVsdC1wbGFjZWhvbGRlci5wbmciLCJpYXQiOjE3NjI1MzY2MjAsImV4cCI6MjM5MzI1NjYyMH0.klH_Mi-rq3O_yXSCpZh_uu3Wav0oZPNLi_6xLvq_RXM"
     const [imageFile, setImageFile] = useState(null);
-    const [imageUrl, setImageUrl] = useState(PLACEHOLDER_URL); 
     const [previewUrl, setPreviewUrl] = useState(PLACEHOLDER_URL);
 
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     //Checking if the user is logged in
     useEffect(() => {
@@ -27,6 +29,7 @@ export default function AddRecipe() {
             const { data } = await supabase.auth.getUser();
 
             if (!data?.user) {
+                setLoading(false);
                 navigate("/login");
                 return;
             }
@@ -40,13 +43,15 @@ export default function AddRecipe() {
 
     if (loading) return <p>Ladataan...</p>;
    
-
     //Handling the submitted form
     async function handleSubmit(e) {
         e.preventDefault();
+
+        if (isSubmitting) return;
+        setIsSubmitting(true);
     
         //Placeholder image
-        let newImageUrl = imageUrl || PLACEHOLDER_URL;
+        let newImageUrl = previewUrl || PLACEHOLDER_URL;
         if (imageFile) {
             const fileName = `${Date.now()}_${imageFile.name}`;
             const { error: uploadError } = await supabase.storage 
@@ -54,7 +59,8 @@ export default function AddRecipe() {
             .upload(fileName, imageFile);
 
             if (uploadError) {
-                setError("Kuvan lataus epäonnistui" + uploadError.message);
+                setError("Kuvan lataus epäonnistui. Yritä uudelleen.");
+                setIsSubmitting(false);
                 return;
             }
 
@@ -66,7 +72,8 @@ export default function AddRecipe() {
                 .createSignedUrl(fileName, TWENTY_YEARS);
 
             if (signedUrlError) {
-                setError("Kuvan URL:n luonti epäonnistui: " + signedUrlError.message);
+                setError("Kuvan lataus epäonnistui. Yritä uudelleen.");
+                setIsSubmitting(false);
                 return;
             }
 
@@ -89,7 +96,8 @@ export default function AddRecipe() {
             ]);
 
         if (insertError) {
-            setError("Reseptin tallennus epäonnistui: " + insertError.message);
+            setError("Reseptin tallennus epäonnistui. Yritä uudelleen.");
+            setIsSubmitting(false);
             return;
         }
 
@@ -112,7 +120,7 @@ export default function AddRecipe() {
     async function handleLogout() {
         const { error } = await supabase.auth.signOut();
         if (error) {
-            console.error("Uloskirjautuminen epäonnistui:", error.message);
+            setError("Uloskirjautuminen epäonnistui. Yritä uudelleen.");
         } else {
             navigate("/");
         }
@@ -127,7 +135,13 @@ export default function AddRecipe() {
                 <h3>Reseptisoppi</h3>
                 </div>
                 <div className="right">
-                <button onClick={handleLogout}>Kirjaudu ulos</button>
+                <button onClick={() => setMenuOpen(!menuOpen)}> <FontAwesomeIcon icon={faUser} /> </button>
+
+                {menuOpen && (
+                    <button className="dropdown-menu" onClick={handleLogout}>
+                    Kirjaudu ulos
+                    </button>
+                )}
                 </div>
             </header>
 
@@ -143,18 +157,14 @@ export default function AddRecipe() {
                     
                         <button type="button" onClick={() => navigate("/recipes")}><FontAwesomeIcon icon={faArrowLeft} /></button>
                         <h1 style={{ fontSize: "1em" }}>Lisää resepti</h1>
-                        <button type="submit"><FontAwesomeIcon icon={faFloppyDisk} /></button>
+                        <button type="submit" disabled={isSubmitting}><FontAwesomeIcon icon={faFloppyDisk} /></button>
                     
                     
                     </div>
 
                     <div className="edit-recipe-image-container">
 
-                        {previewUrl ? (
-                            <img src={previewUrl} alt="Esikatselu" />
-                        ) : (
-                            imageUrl && <img src={imageUrl} alt="Nykyinen reseptikuva" />
-                        )}
+                        <img src={previewUrl} alt="Esikatselu" />
 
                         <input
                             type="file"

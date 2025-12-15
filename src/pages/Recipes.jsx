@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faUser } from '@fortawesome/free-solid-svg-icons'
 
 export default function Recipes() {
 
@@ -9,6 +11,8 @@ export default function Recipes() {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [menuOpen, setMenuOpen] = useState(false);
 
 
   useEffect(() => {
@@ -20,6 +24,7 @@ export default function Recipes() {
       const { data: userData } = await supabase.auth.getUser();
 
       if (!userData.user) {
+        setLoading(false);
         //If user hasn't logged in, redirecting to login page
         navigate("/login");
         return;
@@ -35,7 +40,7 @@ export default function Recipes() {
       .eq("owner", userId);
 
       if (fetchError) {
-        setError("Reseptien haku epäonnistui: " + fetchError.message);
+        setError("Reseptien haku epäonnistui. Yritä uudelleen.");
         setLoading(false);
         return;
       }
@@ -51,7 +56,7 @@ export default function Recipes() {
   async function handleLogout() {
     const { error } = await supabase.auth.signOut();
     if (error) {
-        console.error("Uloskirjautuminen epäonnistui:", error.message);
+        console.error("Uloskirjautuminen epäonnistui. Yritä uudelleen.");
     } else {
         navigate("/");
     }
@@ -65,7 +70,13 @@ export default function Recipes() {
           <h3>Reseptisoppi</h3>
         </div>
         <div className="right">
-          <button onClick={handleLogout}>Kirjaudu ulos</button>
+          <button onClick={() => setMenuOpen(!menuOpen)}> <FontAwesomeIcon icon={faUser} /> </button>
+
+          {menuOpen && (
+            <button className="dropdown-menu" onClick={handleLogout}>
+              Kirjaudu ulos
+            </button>
+          )}
         </div>
       </header>
 

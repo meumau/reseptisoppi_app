@@ -1,9 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faUser } from '@fortawesome/free-solid-svg-icons'
 
 export default function Home() {
   const navigate = useNavigate();
+
+  const [menuOpen, setMenuOpen] = useState(false);
 
   //If the user has already logged in, redirecting to recipes-page
   useEffect(() => {
@@ -19,16 +23,24 @@ export default function Home() {
           checkUser();
   }, [navigate]);
 
+
   return (
     <div>
        <header className="header">
-        <div className="left">
-          <h3>Reseptisoppi</h3>
-        </div>
-        <div className="right">
-          <button onClick={() => navigate("/login")}> Kirjaudu sisään </button>
-        </div>
-      </header>
+          <div className="left">
+            <h3>Reseptisoppi</h3>
+          </div>
+          <div className="right">
+            <button onClick={() => setMenuOpen(!menuOpen)}> <FontAwesomeIcon icon={faUser} /> </button>
+
+          {menuOpen && (
+            <button className="dropdown-menu" onClick={() => navigate("/login")}>
+              Kirjaudu sisään
+            </button>
+          )}
+
+          </div>
+        </header>
 
       <div className="frontpage">
 

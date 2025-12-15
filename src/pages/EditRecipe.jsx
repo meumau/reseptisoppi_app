@@ -2,11 +2,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faArrowLeft, faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
+import { faTrash, faArrowLeft, faFloppyDisk, faUser } from '@fortawesome/free-solid-svg-icons'
 
 export default function EditRecipe() {
     const navigate = useNavigate();
     const { id } = useParams(); 
+    const [menuOpen, setMenuOpen] = useState(false);
 
     const [recipeName, setRecipeName] = useState("");
     const [ingredients, setIngredients] = useState([""]);
@@ -15,16 +16,18 @@ export default function EditRecipe() {
     const [imageUrl, setImageUrl] = useState(""); 
     const [previewUrl, setPreviewUrl] = useState(null);
 
-
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         //Checking user
         async function checkUser() {
             const { data } = await supabase.auth.getUser();
             if (!data?.user) {
+                setLoading(false);
                 navigate("/login");
                 return;
             }
@@ -45,7 +48,13 @@ export default function EditRecipe() {
                 .single();
 
             if (error) {
-                setError("Reseptin haku epäonnistui: " + error.message);
+                setError("Reseptin haku epäonnistui. Yritä uudelleen.");
+                setLoading(false);
+                return;
+            }
+
+            if (!data) {
+                setError("Reseptiä ei löytynyt.");
                 setLoading(false);
                 return;
             }
@@ -65,6 +74,9 @@ export default function EditRecipe() {
     async function handleSubmit(e) {
         e.preventDefault();
 
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
         let newImageUrl = imageUrl;
 
         //If image is changed, uploading new file to the database
@@ -75,7 +87,8 @@ export default function EditRecipe() {
                 .upload(fileName, imageFile);
 
             if (uploadError) {
-                setError("Kuvan lataus epäonnistui: " + uploadError.message);
+                setError("Kuvan lataus epäonnistui. Yritä uudelleen.");
+                setIsSubmitting(false);
                 return;
             }
 
@@ -87,7 +100,8 @@ export default function EditRecipe() {
                 .createSignedUrl(fileName, TWENTY_YEARS);
 
             if (signedUrlError) {
-                setError("Kuvan URL:n luonti epäonnistui: " + signedUrlError.message);
+                setError("Kuvan lataus epäonnistui. Yritä uudelleen.");
+                setIsSubmitting(false);
                 return;
             }
 
@@ -107,7 +121,8 @@ export default function EditRecipe() {
             .eq("id", id);
 
         if (updateError) {
-            setError("Reseptin muokkaaminen epäonnistui: " + updateError.message);
+            setError("Reseptin muokkaaminen epäonnistui. Yritä uudelleen.");
+            setIsSubmitting(false);
             return;
         }
 
@@ -130,7 +145,7 @@ export default function EditRecipe() {
     async function handleLogout() {
         const { error } = await supabase.auth.signOut();
         if (error) {
-            console.error("Uloskirjautuminen epäonnistui:", error.message);
+            setError("Uloskirjautuminen epäonnistui. Yritä uudelleen.");
         } else {
             navigate("/");
         }
@@ -147,7 +162,13 @@ export default function EditRecipe() {
                 <h3>Reseptisoppi</h3>
                 </div>
                 <div className="right">
-                <button type="button" onClick={handleLogout}>Kirjaudu ulos</button>
+                <button onClick={() => setMenuOpen(!menuOpen)}> <FontAwesomeIcon icon={faUser} /> </button>
+
+                {menuOpen && (
+                    <button className="dropdown-menu" onClick={handleLogout}>
+                    Kirjaudu ulos
+                    </button>
+                )}
                 </div>
             </header>
 
@@ -163,7 +184,7 @@ export default function EditRecipe() {
 
                         <button type="button" onClick={() => navigate("/recipes")}><FontAwesomeIcon icon={faArrowLeft} /></button>
                         <h1 style={{ fontSize: "1em" }}>Muokkaa reseptiä</h1>
-                        <button type="submit"><FontAwesomeIcon icon={faFloppyDisk} /></button>
+                        <button type="submit" disabled={isSubmitting}><FontAwesomeIcon icon={faFloppyDisk} /></button>
 
 
                     </div>

@@ -17,6 +17,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: "Special Gothic Expanded One", sans-serif;
   font-weight: 400;
   font-style: normal;
+  overflow-wrap: break-word;
 }
 
 a {
@@ -87,6 +88,19 @@ button:focus-visible {
   justify-content: flex-end; 
   align-items: center; 
 }
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 80px;
+  width: 200px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
 
 .frontpage {
   background-image: url("./images/food-bg.jpg");
@@ -330,3 +344,112 @@ button:focus-visible {
   padding: 10px;
 
 }
+
+
+
+/* Smaller screen */
+@media (min-width: 1024px) and (max-width: 1250px) {
+    .show-recipe
+    {
+      margin: 50px 20px;
+    }
+
+    .show-recipe-content {
+      padding: 30px 45px;
+    }
+
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+
+  .frontpage-container {
+    max-width: 400px; 
+    padding: 100px 50px;
+  }
+
+  .show-recipe
+    {
+      display: grid;
+      grid-template-rows: auto auto auto; 
+      grid-template-columns: 100%;
+      margin: 50px 80px;
+    }
+
+  .show-recipe-content {
+      max-width: 1000px;
+      border: none;
+      border-top: 1px solid black;
+      padding: 20px 0 20px 80px;
+  }
+
+  .text-field {
+    width: 80%;
+  }
+
+  .text-field-textarea {
+    width: 80%;
+  }
+
+
+}
+
+/* Mobile */
+@media (max-width: 770px) {
+
+  .frontpage-container {
+    margin: auto;
+    width: 60%; 
+    padding: 100px 50px;
+  }
+
+  .recipes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90%, 1fr));
+    gap: 20px;
+  }
+
+  .recipe-card {
+    width: 90%;
+  }
+
+  .recipe-image-container {
+    height: 300px;
+  }
+
+  .show-recipe {
+      margin: 50px 20px;
+  }
+
+  .show-recipe-image-container {
+    height: 350px;
+  }
+
+  .edit-recipe-image-container {
+    height: 400px;
+  }
+
+  .edit-recipe-image-container img {
+    width: 100%;
+    height: 80%;
+    border-bottom: 1px solid black;
+  }
+
+  .show-recipe-content {
+      padding: 19px 0 20px 20px;
+  }
+
+  h1 {
+    font-size: 1.7em;
+  }
+
+  .text-field {
+    width: 75%;
+  }
+
+  .text-field-textarea {
+    width: 75%;
+  }
+
+
+}
+
