@@ -1,68 +1,332 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: black;
+  background-color: #f5f0e9;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Special Gothic Expanded One", sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #576d1b;
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: #576d1b;
 }
 
 body {
   margin: 0;
+  padding: 0;
   display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
 }
 
+
 h1 {
-  font-size: 3.2em;
+  font-size: 3em;
   line-height: 1.1;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
+  border-radius: 50px;
+  border: 1px solid black;
+  padding: 1em 1.4em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #f5f0e9;
+  color: black;
   cursor: pointer;
   transition: border-color 0.25s;
+  font-size: 0.9em;
 }
 button:hover {
-  border-color: #646cff;
+  background-color: white;
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+
+.header {
+  display: flex;         
+  justify-content: space-between; 
+  align-items: center;    
+  padding: 1rem 2rem;
+  background-color: #e6dccd;
+  border-bottom: solid 1px black;
+  color: black;
+}
+
+.header .left {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start; 
+  align-items: center; 
+}
+
+.header .right {
+  flex: 1;
+  display: flex;     
+  justify-content: flex-end; 
+  align-items: center; 
+}
+
+.frontpage {
+  background-image: url("./images/food-bg.jpg");
+  background-size: cover;
+  margin: 0;
+  padding-top: 130px;
+}
+
+.frontpage-container {
+  margin: auto;
+  max-width: 500px; 
+  background: #fff;
+  border: 1px solid black;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 50px;
+}
+
+
+.frontpage-gradient {
+  background: linear-gradient(to top, #f5f0e9, transparent);
+  height: 300px;
+  width: 100%;
+}
+
+.footertext {
+  margin-top: 50px;
+}
+
+
+.recipes {
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  text-align: center; 
+  padding: 20px;
+}
+
+
+.recipes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px; 
+  justify-items: center; 
+  margin-top: 30px;
+}
+
+
+.recipe-card {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid black;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.recipe-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.recipe-image-container {
+  height: 220px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e6dccd; 
+  font-family: "Special Gothic Expanded One", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 7em;
+  color: #a89c8c;
+  border-bottom: 1px solid black;
+}
+
+.recipe-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.recipe-content {
+  padding: 12px 16px;
+  height: 40px; 
+  display: flex;
+  align-items: center; 
+  justify-content: center;
+  text-align: center;
+}
+
+.recipe-content h3 {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.show-recipe
+{
+  display: grid;
+  grid-template-rows: auto auto; 
+  grid-template-columns: 40% 60%;
+  gap: 0;
+  margin: 50px auto;
+  max-width: 1200px; 
+  background: #fff;
+  border: 1px solid black;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.show-recipe button {
+  padding: 10px;
+  margin: 10px;
+}
+
+.show-recipe-topbar {
+  grid-column: 1 / -1;
+  border-bottom: 1px solid black;
+  background-color: #e6dccd;
+  padding: 4px;
+  display: flex;                 
+  justify-content: space-between; 
+  align-items: center;  
+}
+
+
+.show-recipe-image-container {
+  height: 560px;
+  width: 100%;
+}
+
+.show-recipe-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.show-recipe-content {
+  text-align: left;
+  padding: 30px 80px;
+  max-height: 500px;
+  overflow-y: auto; 
+  border-left: 1px solid black;
+}
+
+
+.edit-form {
+  display: contents;
+}
+
+.edit-recipe-image-container {
+  height: 560px;
+  width: 100%;
+}
+
+.edit-recipe-image-container img {
+  width: 100%;
+  height: 85%;
+  object-fit: cover;
+  border-bottom: 1px solid black;
+}
+
+.text-field {
+  width: 400px;
+  height: 2.5em;
+  margin: 0px 0;
+  font-family: "Montserrat", sans-serif;
+  padding-left: 10px;
+  background-color: #fcf9f5;
+  border: 1px solid black;
+}
+
+.text-field-textarea {
+  width: 400px;
+  height: 15em;
+  margin: 5px 0;
+  padding: 10px;
+  font-family: "Montserrat", sans-serif;
+  background-color: #fcf9f5;
+  border: 1px solid black;
+}
+
+.button-transparent {
+  background-color: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  height: 10px;
+}
+
+.file-button {
+  margin: 25px;
+}
+
+.login {
+  gap: 0;
+  margin: 50px auto;
+  max-width: 500px; 
+  background: #fff;
+  border: 1px solid black;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.login-topbar {
+  border-bottom: 1px solid black;
+  background-color: #e6dccd;
+  padding: 10px;
+  display: flex;                 
+  justify-content: space-between; 
+  align-items: center;  
+}
+
+.login-container {
+  padding: 30px 50px;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.login-field {
+  
+  height: 2.5em;
+  margin: 0px 0;
+  font-family: "Montserrat", sans-serif;
+  padding-left: 10px;
+  background-color: #fcf9f5;
+  border: 1px solid black;
+}
+
+.login button {
+  padding: 10px;
+
 }

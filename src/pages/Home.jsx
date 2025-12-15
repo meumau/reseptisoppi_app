@@ -21,19 +21,32 @@ export default function Home() {
 
   return (
     <div>
-      <h1>Reseptisoppi</h1>
-      <h2>Lisää lempireseptisi ja jaa ne ystäviesi kanssa!</h2>
+       <header className="header">
+        <div className="left">
+          <h3>Reseptisoppi</h3>
+        </div>
+        <div className="right">
+          <button onClick={() => navigate("/login")}> Kirjaudu sisään </button>
+        </div>
+      </header>
 
-    {/*Options: log in or register*/}
-      <div>
-        <button onClick={() => navigate("/login")}>
-          Kirjaudu sisään
-        </button>
+      <div className="frontpage">
 
-        <button onClick={() => navigate("/register")}>
-          Luo tunnus
-        </button>
+        <div className="frontpage-container">
+
+          <h2>Pidä lempireseptisi tallessa</h2>
+
+          <button onClick={() => navigate("/register")}>
+            Luo tunnus
+          </button>
+
+        </div>
+        <div className="frontpage-gradient"></div>
+
       </div>
+
+              <p className="footertext">© Reseptisoppi 2025</p>
+
     </div>
   );
 }

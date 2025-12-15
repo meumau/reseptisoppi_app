@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
-import IconButton from '@mui/material/IconButton';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrash, faArrowLeft, faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
 
 export default function AddRecipe() {
 
@@ -11,7 +11,11 @@ export default function AddRecipe() {
     const [recipeName, setRecipeName] = useState("");
     const [ingredients, setIngredients] = useState([""]);
     const [instructions, setInstructions] = useState("");
+
+    const PLACEHOLDER_URL = "https://grqvzebxmjnyaracmbtl.supabase.co/storage/v1/object/sign/Recipeimages/default-placeholder.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YTRiMzk2ZS03ZDYyLTQ0NzMtOTZiMi1lMmU2ZTVlYjNiYzYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJSZWNpcGVpbWFnZXMvZGVmYXVsdC1wbGFjZWhvbGRlci5wbmciLCJpYXQiOjE3NjI1MzY2MjAsImV4cCI6MjM5MzI1NjYyMH0.klH_Mi-rq3O_yXSCpZh_uu3Wav0oZPNLi_6xLvq_RXM"
     const [imageFile, setImageFile] = useState(null);
+    const [imageUrl, setImageUrl] = useState(PLACEHOLDER_URL); 
+    const [previewUrl, setPreviewUrl] = useState(PLACEHOLDER_URL);
 
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
@@ -42,11 +46,10 @@ export default function AddRecipe() {
         e.preventDefault();
     
         //Placeholder image
-        let imageUrl = "https://grqvzebxmjnyaracmbtl.supabase.co/storage/v1/object/sign/Recipeimages/default-placeholder.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YTRiMzk2ZS03ZDYyLTQ0NzMtOTZiMi1lMmU2ZTVlYjNiYzYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJSZWNpcGVpbWFnZXMvZGVmYXVsdC1wbGFjZWhvbGRlci5wbmciLCJpYXQiOjE3NjI1MzY2MjAsImV4cCI6MjM5MzI1NjYyMH0.klH_Mi-rq3O_yXSCpZh_uu3Wav0oZPNLi_6xLvq_RXM";
-
+        let newImageUrl = imageUrl || PLACEHOLDER_URL;
         if (imageFile) {
             const fileName = `${Date.now()}_${imageFile.name}`;
-            const { error: uploadError } = await supabase.storage //uploadData turha?????
+            const { error: uploadError } = await supabase.storage 
             .from("Recipeimages")
             .upload(fileName, imageFile);
 
@@ -68,7 +71,7 @@ export default function AddRecipe() {
             }
 
                 
-            imageUrl = signedUrlData.signedUrl;
+            newImageUrl = signedUrlData.signedUrl;
         }
 
 
@@ -80,7 +83,7 @@ export default function AddRecipe() {
                     name: recipeName,
                     ingredients,
                     instructions,
-                    image_url: imageUrl,
+                    image_url: newImageUrl,
                     owner: user.id,
                 }
             ]);
@@ -105,63 +108,133 @@ export default function AddRecipe() {
         setIngredients((prev) => prev.filter((_, i) => i !== index));
     };
 
+    //Log out
+    async function handleLogout() {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.error("Uloskirjautuminen epäonnistui:", error.message);
+        } else {
+            navigate("/");
+        }
+    }
+
 
     return (
         <div>
 
-        <button onClick={() => navigate("/recipes")}>Takaisin</button>
+            <header className="header">
+                <div className="left">
+                <h3>Reseptisoppi</h3>
+                </div>
+                <div className="right">
+                <button onClick={handleLogout}>Kirjaudu ulos</button>
+                </div>
+            </header>
 
-        <h1>Uusi resepti</h1>
+            {error && <p style={{ color: "red" }}>{error}</p>}
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
+            <div className="show-recipe">
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                
 
-        <input type="text" placeholder="Reseptin nimi" required value={recipeName} onChange={(e) => setRecipeName(e.target.value)} />
+                <form onSubmit={handleSubmit} className="edit-form">
 
-        {ingredients.map((ingredient, index) => (
-            <div key={index} style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                <input
-                    type="text"
-                    placeholder={`Ainesosa ${index + 1}`}
-                    value={ingredient}
-                    onChange={(e) => handleIngredientChange(index, e.target.value)}
-                />
+                    <div className="show-recipe-topbar">
+                    
+                        <button type="button" onClick={() => navigate("/recipes")}><FontAwesomeIcon icon={faArrowLeft} /></button>
+                        <h1 style={{ fontSize: "1em" }}>Lisää resepti</h1>
+                        <button type="submit"><FontAwesomeIcon icon={faFloppyDisk} /></button>
+                    
+                    
+                    </div>
 
-                <IconButton color="secondary" aria-label="delete" onClick={() => handleIngredientDelete(index)}>
-                    <DeleteIcon />
-                </IconButton>
+                    <div className="edit-recipe-image-container">
+
+                        {previewUrl ? (
+                            <img src={previewUrl} alt="Esikatselu" />
+                        ) : (
+                            imageUrl && <img src={imageUrl} alt="Nykyinen reseptikuva" />
+                        )}
+
+                        <input
+                            type="file"
+                            className="file-button"
+                            accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                setImageFile(file);
+
+                                if (file) {
+                                    const preview = URL.createObjectURL(file);
+                                    setPreviewUrl(preview);
+                                }
+                            }}
+                        />
+
+                        
+                    </div>
+                    
+                    <div className="show-recipe-content">
+
+                        <h3>Reseptin nimi</h3>
+
+                        <input type="text" className="text-field" required value={recipeName} onChange={(e) => setRecipeName(e.target.value)} />
+
+                        <br></br><br></br>
+
+                        <h3>Ainesosat</h3>
+
+                        {ingredients.map((ingredient, index) => (
+                            <div key={index}>
+                                <input
+                                    type="text"
+                                    className="text-field"
+                                    placeholder={`Ainesosa ${index + 1}`}
+                                    value={ingredient}
+                                    onChange={(e) => handleIngredientChange(index, e.target.value)}
+                                />
+
+                                <button onClick={() => handleIngredientDelete(index)} className="button-transparent">
+                                    <FontAwesomeIcon icon={faTrash} />
+                                </button>
+
+                
+                            </div>
+                        ))}
+
+                        <br></br>
+
+
+                        <button type="button" onClick={() => setIngredients([...ingredients, ""])} style={{ margin: 0 }}>
+                            Lisää ainesosa
+                        </button>
+
+                        <br></br>
+                        <br></br>
+
+                        <h3>Valmistusohjeet</h3>
+
+                        <textarea
+                        className="text-field-textarea"
+                        required
+                        rows="5"
+                        style={{ resize: "vertical", padding: "8px" }}
+                        value={instructions}
+                        onChange={(e) => setInstructions(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                            e.stopPropagation();
+                            }
+                        }}
+                        ></textarea>
+
+
+                    </div>
+
+                </form>
+
+                
             </div>
-        ))}
-
-
-        <button type="button" onClick={() => setIngredients([...ingredients, ""])}>
-            Lisää ainesosa
-        </button>
-
-        <textarea
-        placeholder="Valmistusohjeet"
-        required
-        rows="5"
-        style={{ resize: "vertical", padding: "8px" }}
-        value={instructions}
-        onChange={(e) => setInstructions(e.target.value)}
-        onKeyDown={(e) => {
-            if (e.key === "Enter") {
-            e.stopPropagation();
-            }
-        }}
-        ></textarea>
-
-        <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => setImageFile(e.target.files[0])}
-        />
-
-        <button type="submit">Lisää resepti</button>
-
-        </form>
 
         </div>
     );

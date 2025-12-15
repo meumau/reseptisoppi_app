@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 
 export default function Register() {
 
@@ -62,18 +64,24 @@ export default function Register() {
 
   return (
     <div>
-      <button onClick={() => navigate("/")}>Etusivulle</button>
-      <h1>Luo tunnus</h1>
-      <form onSubmit={signUpNewUser} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <input type="email" placeholder="Sähköposti" required value={email} onChange={(e) => setEmail(e.target.value)}/>
-        <input type="password" placeholder="Salasana" required value={password} onChange={(e) => setPassword(e.target.value)}/>
-        <input type="password" placeholder="Vahvista salasana" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
+      <div className="login">
+        <div className="login-topbar">
+          <button type="button" onClick={() => navigate("/")}><FontAwesomeIcon icon={faArrowLeft} /></button>
+        </div>
+        <div className="login-container">
+          <h1 style={{ fontSize: "2em" }}>Luo tunnus</h1>
+          <form onSubmit={signUpNewUser} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <input className="login-field" type="email" placeholder="Sähköposti" required value={email} onChange={(e) => setEmail(e.target.value)}/>
+            <input className="login-field" type="password" placeholder="Salasana" required value={password} onChange={(e) => setPassword(e.target.value)}/>
+            <input className="login-field" type="password" placeholder="Vahvista salasana" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
+            {error && <p style={{ color: "red" }}>{error}</p>}
 
 
-        <button type="submit">Rekisteröidy</button>
-      </form>
+            <button type="submit">Rekisteröidy</button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

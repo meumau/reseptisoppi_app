@@ -2,13 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
-
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Typography from '@mui/material/Typography';
-import CardActionArea from '@mui/material/CardActionArea';
-
 export default function Recipes() {
 
   const navigate = useNavigate();
@@ -54,6 +47,7 @@ export default function Recipes() {
     loadMyRecipes();
   }, [navigate]);
 
+  //Log out
   async function handleLogout() {
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -64,39 +58,47 @@ export default function Recipes() {
   }
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div>
 
-      <button onClick={handleLogout}>Kirjaudu ulos</button>
+      <header className="header">
+        <div className="left">
+          <h3>Reseptisoppi</h3>
+        </div>
+        <div className="right">
+          <button onClick={handleLogout}>Kirjaudu ulos</button>
+        </div>
+      </header>
 
-      <h1>Reseptisi</h1>
+      
+      <div className="recipes">
+        <h1>Omat reseptit</h1>
 
-      {loading && <p>Ladataan reseptejä...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {loading && <p>Ladataan reseptejä...</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
-        {recipes.map((r) => (
-          <Card key={r.id} sx={{ width: 300 }}>
-            <CardActionArea onClick={() => navigate("/showrecipe/" + r.id)}>
-              <CardMedia
-                component="img"
-                height="140"
-                image={r.image_url}
-                alt={r.name}
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h6">
-                  {r.name}
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        ))}
+        <div className="recipes-grid">
+          <div className="recipe-card" onClick={() => navigate("/addrecipe")}>
+            <div className="recipe-image-container">
+              <span>+</span>
+            </div>
+            <div className="recipe-content">
+              <h3>Lisää uusi resepti</h3>
+            </div>
+          </div>
+          {recipes.map((r) => (
+            <div key={r.id} className="recipe-card" onClick={() => navigate("/showrecipe/" + r.id)}>
+              <div className="recipe-image-container">
+                <img src={r.image_url} alt={r.name} className="recipe-image" />
+              </div>
+              <div className="recipe-content">
+                <h3>{r.name}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+
       </div>
 
-
-      <button onClick={() => navigate("/addrecipe")} style={{ marginTop: "20px" }}>
-        Lisää uusi resepti
-      </button>
     </div>
   );
 }
