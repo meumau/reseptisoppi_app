@@ -1,84 +1,33 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUser } from '@fortawesome/free-solid-svg-icons'
+import useAuth from "../hooks/useAuth";
+import useRecipes from "../hooks/useRecipes";
+import Header from "../components/Header";
 
 export default function Recipes() {
 
+  const { user, loading: authLoading } = useAuth();
+  const { recipes, loading, error } = useRecipes(user?.id);
   const navigate = useNavigate();
 
-  const [recipes, setRecipes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const [menuOpen, setMenuOpen] = useState(false);
-
-
+  //Checking if user is logged in
   useEffect(() => {
-    async function loadMyRecipes() {
-      setLoading(true);
-      setError("");
+    if (authLoading) return;
 
-      //Getting user data from supabase
-      const { data: userData } = await supabase.auth.getUser();
-
-      if (!userData.user) {
-        setLoading(false);
-        //If user hasn't logged in, redirecting to login page
-        navigate("/login");
-        return;
-      }
-
-      const userId = userData.user.id;
-
-      //Getting users recipes from supabase
-      const { data, error: fetchError } = await supabase
-      .from("recipes")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .eq("owner", userId);
-
-      if (fetchError) {
-        setError("Reseptien haku epäonnistui. Yritä uudelleen.");
-        setLoading(false);
-        return;
-      }
-
-      setRecipes(data || []);
-      setLoading(false);
+    if (!user) {
+      navigate("/login");
+      return;
     }
 
-    loadMyRecipes();
-  }, [navigate]);
 
-  //Log out
-  async function handleLogout() {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-        console.error("Uloskirjautuminen epäonnistui. Yritä uudelleen.");
-    } else {
-        navigate("/");
-    }
-  }
+  }, [user, authLoading, navigate]);
+
 
   return (
     <div>
 
-      <header className="header">
-        <div className="left">
-          <h3>Reseptisoppi</h3>
-        </div>
-        <div className="right">
-          <button onClick={() => setMenuOpen(!menuOpen)}> <FontAwesomeIcon icon={faUser} /> </button>
-
-          {menuOpen && (
-            <button className="dropdown-menu" onClick={handleLogout}>
-              Kirjaudu ulos
-            </button>
-          )}
-        </div>
-      </header>
+      <Header />
 
       
       <div className="recipes">

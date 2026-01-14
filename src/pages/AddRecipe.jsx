@@ -1,13 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
+import useAuth from "../hooks/useAuth";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faArrowLeft, faFloppyDisk, faUser } from '@fortawesome/free-solid-svg-icons'
+import { faTrash, faArrowLeft, faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
+import Header from "../components/Header";
 
 export default function AddRecipe() {
 
     const navigate = useNavigate();
-    const [menuOpen, setMenuOpen] = useState(false);
+    const { user, loading: authLoading } = useAuth();
+
 
     const [recipeName, setRecipeName] = useState("");
     const [ingredients, setIngredients] = useState([""]);
@@ -18,40 +21,28 @@ export default function AddRecipe() {
     const [previewUrl, setPreviewUrl] = useState(PLACEHOLDER_URL);
 
     const [error, setError] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState(null);
-
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    //Checking if the user is logged in
+    //Checking if user is logged in
     useEffect(() => {
-        async function checkUser() {
-            const { data } = await supabase.auth.getUser();
+        if (authLoading) return;
 
-            if (!data?.user) {
-                setLoading(false);
-                navigate("/login");
-                return;
-            }
-
-            setUser(data.user);
-            setLoading(false);
+        if (!user) {
+            navigate("/login");
         }
-
-        checkUser();
-    }, [navigate]);
-
-    if (loading) return <p>Ladataan...</p>;
+    }, [user, authLoading, navigate]);
    
     //Handling the submitted form
     async function handleSubmit(e) {
         e.preventDefault();
 
-        if (isSubmitting) return;
+        if (!user || isSubmitting) return;
         setIsSubmitting(true);
+        setError("");
     
         //Placeholder image
         let newImageUrl = previewUrl || PLACEHOLDER_URL;
+        //Upload image if a file is selected
         if (imageFile) {
             const fileName = `${Date.now()}_${imageFile.name}`;
             const { error: uploadError } = await supabase.storage 
@@ -116,34 +107,14 @@ export default function AddRecipe() {
         setIngredients((prev) => prev.filter((_, i) => i !== index));
     };
 
-    //Log out
-    async function handleLogout() {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            setError("Uloskirjautuminen epäonnistui. Yritä uudelleen.");
-        } else {
-            navigate("/");
-        }
-    }
+
+    if (authLoading) return <p>Ladataan...</p>;
 
 
     return (
         <div>
 
-            <header className="header">
-                <div className="left">
-                <h3>Reseptisoppi</h3>
-                </div>
-                <div className="right">
-                <button onClick={() => setMenuOpen(!menuOpen)}> <FontAwesomeIcon icon={faUser} /> </button>
-
-                {menuOpen && (
-                    <button className="dropdown-menu" onClick={handleLogout}>
-                    Kirjaudu ulos
-                    </button>
-                )}
-                </div>
-            </header>
+            <Header />
 
             {error && <p style={{ color: "red" }}>{error}</p>}
 

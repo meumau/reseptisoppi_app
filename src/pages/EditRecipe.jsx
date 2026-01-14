@@ -1,13 +1,15 @@
 import { useNavigate, useParams } from "react-router-dom"; 
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
+import useAuth from "../hooks/useAuth";
+import useRecipe from "../hooks/useRecipe";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faArrowLeft, faFloppyDisk, faUser } from '@fortawesome/free-solid-svg-icons'
+import { faTrash, faArrowLeft, faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
+import Header from "../components/Header";
 
 export default function EditRecipe() {
     const navigate = useNavigate();
     const { id } = useParams(); 
-    const [menuOpen, setMenuOpen] = useState(false);
 
     const [recipeName, setRecipeName] = useState("");
     const [ingredients, setIngredients] = useState([""]);
@@ -17,57 +19,33 @@ export default function EditRecipe() {
     const [previewUrl, setPreviewUrl] = useState(null);
 
     const [error, setError] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState(null);
+
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
-        //Checking user
-        async function checkUser() {
-            const { data } = await supabase.auth.getUser();
-            if (!data?.user) {
-                setLoading(false);
-                navigate("/login");
-                return;
-            }
-            setUser(data.user);
-        }
-        checkUser();
-    }, [navigate]);
+    const { user, loading: authLoading } = useAuth();
+    const { recipe, loading: recipeLoading, error: recipeError } = useRecipe(id);
 
+    //Checking if user is logged in
+    useEffect(() => {
+        if (authLoading) return;
+
+        if (!user) {
+            navigate("/login");
+        }
+    }, [user, authLoading, navigate]);
 
     useEffect(() => {
-        if (!user) return;
-        //Fetching recipe from database
-        async function fetchRecipe() {
-            const { data, error } = await supabase
-                .from("recipes")
-                .select("*")
-                .eq("id", id)
-                .single();
+        if (!recipe) return;
 
-            if (error) {
-                setError("Reseptin haku epäonnistui. Yritä uudelleen.");
-                setLoading(false);
-                return;
-            }
+        setRecipeName(recipe.name);
+        setIngredients(recipe.ingredients || [""]);
+        setInstructions(recipe.instructions);
+        setImageUrl(recipe.image_url);
+    }, [recipe]);
 
-            if (!data) {
-                setError("Reseptiä ei löytynyt.");
-                setLoading(false);
-                return;
-            }
 
-            setRecipeName(data.name);
-            setIngredients(data.ingredients || [""]);
-            setInstructions(data.instructions);
-            setImageUrl(data.image_url);
-            setLoading(false);
-        }
-
-        fetchRecipe();
-    }, [id, user]);
+    
 
 
     //Saving the edited recipe to the database
@@ -141,39 +119,20 @@ export default function EditRecipe() {
         setIngredients((prev) => prev.filter((_, i) => i !== index));
     };
 
-    //Log out
-    async function handleLogout() {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            setError("Uloskirjautuminen epäonnistui. Yritä uudelleen.");
-        } else {
-            navigate("/");
-        }
+
+    if (authLoading || recipeLoading) {
+        return <p>Ladataan reseptiä...</p>;
     }
 
+    if (recipeError) {
+        return <p style={{ color: "red" }}>{recipeError}</p>;
+    }
 
-    if (loading) return <p>Ladataan reseptiä...</p>;
-
- return (
+    return (
         <div>
 
-            <header className="header">
-                <div className="left">
-                <h3>Reseptisoppi</h3>
-                </div>
-                <div className="right">
-                <button onClick={() => setMenuOpen(!menuOpen)}> <FontAwesomeIcon icon={faUser} /> </button>
+            <Header />
 
-                {menuOpen && (
-                    <button className="dropdown-menu" onClick={handleLogout}>
-                    Kirjaudu ulos
-                    </button>
-                )}
-                </div>
-            </header>
-
-            
-            
             {error && <p style={{ color: "red" }}>{error}</p>}
 
             <div className="show-recipe">

@@ -1,33 +1,28 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import useAuth from "../hooks/useAuth";
+import useRecipe from "../hooks/useRecipe";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPen, faTrash, faArrowLeft, faUser } from '@fortawesome/free-solid-svg-icons'
+import { faPen, faTrash, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import Header from "../components/Header";
 
 export default function ShowRecipe() {
+
     const { id } = useParams();
-    const navigate = useNavigate(); 
-    const [menuOpen, setMenuOpen] = useState(false);
+    const navigate = useNavigate();
 
-    const [recipe, setRecipe] = useState(null); 
-    const [loading, setLoading] = useState(true); 
-    const [error, setError] = useState("");
-    const [user, setUser] = useState(null);
+    const { user, loading: authLoading } = useAuth();
+    const { recipe, loading, error } = useRecipe(id);
 
+    //Checking if user is logged in
     useEffect(() => {
-        //Checking user
-        async function checkUser() {
-            const { data } = await supabase.auth.getUser();
-            if (!data?.user) {
-                setLoading(false);
-                navigate("/login");
-                return;
-            }
-            setUser(data.user);
-        }
+        if (authLoading) return;
 
-        checkUser();
-    }, []);
+        if (!user) {
+            navigate("/login");
+        }
+    }, [user, authLoading, navigate]);
 
     useEffect(() => {
         //Fetching recipe from database
@@ -52,52 +47,32 @@ export default function ShowRecipe() {
 
     //Deleting the recipe
     async function deleteRecipe(recipeId) {
-        const { data, error } = await supabase
-        .from("recipes")      
-        .delete()             
-        .eq("id", recipeId)
-        .eq("owner", user.id);
+        if (!user) return;
+
+        const { error } = await supabase
+            .from("recipes")
+            .delete()
+            .eq("id", recipeId)
+            .eq("owner", user.id);
 
         if (error) {
-            setError("Reseptin poisto epäonnistui. Yritä uudelleen.");
+            console.error("Reseptin poisto epäonnistui");
             return;
         }
 
         navigate("/recipes");
     }
 
-    //Log out
-    async function handleLogout() {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            console.error("Uloskirjautuminen epäonnistui. Yritä uudelleen.");
-        } else {
-            navigate("/");
-        }
-    }
-
-
     //Loading
-    if (loading) return <p>Ladataan...</p>;
+    if (authLoading || loading) {
+        return <p>Ladataan...</p>;
+    }
 
 
     return (
     <div>
 
-        <header className="header">
-            <div className="left">
-            <h3>Reseptisoppi</h3>
-            </div>
-            <div className="right">
-            <button onClick={() => setMenuOpen(!menuOpen)}> <FontAwesomeIcon icon={faUser} /> </button>
-
-            {menuOpen && (
-                <button className="dropdown-menu" onClick={handleLogout}>
-                Kirjaudu ulos
-                </button>
-            )}
-            </div>
-        </header>
+        <Header />
 
         {recipe ? (
             <div className="show-recipe">

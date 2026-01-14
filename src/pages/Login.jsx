@@ -1,29 +1,28 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import useAuth from "../hooks/useAuth";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 
 export default function Login() {
 
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   //If the user has already logged in, redirecting to recipes-page
   useEffect(() => {
-    async function checkUser() {
-        const { data } = await supabase.auth.getUser();
-    
-        if (data?.user) {
-            navigate("/recipes");
-            return;
-        } 
+    if (authLoading) return;
+
+    if (user) {
+      navigate("/recipes");
+      return;
     }
-  
-          checkUser();
-  }, [navigate]);
+
+  }, [user, authLoading, navigate]);
 
 
   async function signInWithEmail(e) {
@@ -33,7 +32,7 @@ export default function Login() {
     setError("");
 
     //Signing in with Supabase Auth
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({
+    const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
